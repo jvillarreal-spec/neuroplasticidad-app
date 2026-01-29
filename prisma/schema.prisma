@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  sessions  Session[]
+}
+
+model Session {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+  startedAt      DateTime @default(now())
+  lastActiveAt   DateTime @default(now())
+  progress       Float    @default(0) // Global Percentage
+  
+  moduleProgress ModuleProgress[]
+  responses      Response[]
+}
+
+model ModuleProgress {
+  id        String   @id @default(uuid())
+  sessionId String
+  session   Session  @relation(fields: [sessionId], references: [id])
+  moduleIdx Int      // 1-15
+  status    String   // LOCKED, IN_PROGRESS, COMPLETED
+  currentStep Int    @default(0)
+}
+
+model Response {
+  id          String   @id @default(uuid())
+  sessionId   String
+  session     Session  @relation(fields: [sessionId], references: [id])
+  moduleId    Int
+  stepId      String
+  content     String   // JSON or Text
+  
+  // For mirror summary
+  agentSummary String? 
+  validated    Boolean @default(false)
+}

@@ -1,0 +1,51 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    min-height: 400px;
+}
+
+.intro {
+    text-align: center;
+}
+
+.circle {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: hsl(var(--color-primary) / 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 4px solid hsl(var(--color-primary));
+    transition: all 4s ease-in-out;
+    position: relative;
+}
+
+.label {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+}
+
+/* Animations */
+.inhale {
+    transform: scale(1.5);
+    background: hsl(var(--color-secondary) / 0.4);
+    transition-duration: 4s;
+}
+
+.hold {
+    transform: scale(1.5);
+    background: hsl(var(--color-primary) / 0.4);
+    transition-duration: 0s;
+    /* Hold size */
+}
+
+.exhale {
+    transform: scale(1);
+    background: hsl(var(--color-primary) / 0.2);
+    transition-duration: 8s;
+}

@@ -1,66 +1,51 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
+import React, { useEffect, useRef } from 'react';
+import MainLayout from "@/components/layout/MainLayout";
+import AgentChat from "@/components/chat/AgentChat";
+import StepRenderer from "@/components/workshop/StepRenderer";
+import { useWorkshopStore } from "@/store/useWorkshopStore";
+import { workshopModules } from "@/data/workshopContent";
+import styles from '@/components/layout/MainLayout.module.css';
 
 export default function Home() {
+  const { currentModule, currentStepIndex, addMessage, messages } = useWorkshopStore();
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  const activeModule = workshopModules.find(m => m.id === currentModule);
+  // Fallback to first step if undefined
+  const activeStep = activeModule?.steps[currentStepIndex];
+
+  useEffect(() => {
+    if (activeStep?.agentScript) {
+      // Avoid simple duplicate messages for now by checking the last message
+      const lastMsg = messages[messages.length - 1];
+      if (lastMsg?.text !== activeStep.agentScript) {
+        addMessage({
+          sender: 'agent',
+          text: activeStep.agentScript
+        });
+      }
+    }
+  }, [activeStep, addMessage, messages]);
+
+  // Scroll to bottom whenever messages or active step change
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, activeStep]);
+
+  if (!activeStep) {
+    return <div className="p-10 text-white">Cargando taller...</div>;
+  }
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <MainLayout>
+      <div className={styles.scrollContainer}>
+        <AgentChat />
+        <div id="active-step-container" style={{ paddingTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+          <StepRenderer step={activeStep} />
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+        <div ref={bottomRef} style={{ height: '10rem' }} />
+      </div>
+    </MainLayout>
   );
 }
